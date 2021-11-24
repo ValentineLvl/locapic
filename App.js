@@ -5,6 +5,7 @@ import { StyleSheet } from 'react-native';
 import HomeScreen from './screens/HomeScreen';
 import MapScreen from './screens/MapScreen';
 import ChatScreen from './screens/ChatScreen';
+import POIScreen from './screens/POIScreen';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -14,8 +15,9 @@ import { Ionicons } from '@expo/vector-icons';
 import {createStore, combineReducers} from 'redux';
 import {Provider} from 'react-redux';
 import pseudo from './reducers/pseudo';
+import listPOI from './reducers/listPOI';
 
-const store = createStore(combineReducers({pseudo}));
+const store = createStore(combineReducers({pseudo, listPOI}));
 
 const Stack = createStackNavigator();
  const Tab = createBottomTabNavigator();
@@ -31,6 +33,8 @@ const Stack = createStackNavigator();
           iconName = 'ios-navigate';
         } else if (route.name === 'Chat') {
           iconName = 'ios-chatbubbles';
+        } else if (route.name === 'POI'){
+          iconName = 'ios-location';
         }
         return <Ionicons name={iconName} size={25} color={color} />;
       },
@@ -44,6 +48,7 @@ const Stack = createStackNavigator();
     >
       <Tab.Screen name="Map" component={MapScreen} />
       <Tab.Screen name="Chat" component={ChatScreen} />
+      <Tab.Screen name="POI" component={POIScreen} />
     </Tab.Navigator>
   );
   }
