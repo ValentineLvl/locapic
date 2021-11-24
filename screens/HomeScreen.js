@@ -6,7 +6,7 @@ import {connect} from 'react-redux';
 
 function HomeScreen(props) {
 
-    const [pseudo, setPseudo] = useState('');
+    const [pseudo, setPseudo] = useState([]);
 
     return (
         <ImageBackground source={require('../assets/home.jpg')} style={styles.container}>
