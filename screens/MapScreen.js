@@ -11,8 +11,8 @@ import { connect } from 'react-redux';
 function MapScreen(props) {
     
     //ma position
-    const [currentLatitude, setCurrentLatitude] = useState({latitude:0});
-    const [currentLongitude, setCurrentLongitude] = useState({longitude:0});
+    const [currentLatitude, setCurrentLatitude] = useState(0);
+    const [currentLongitude, setCurrentLongitude] = useState(0);
     
     //Etat du bouton
     const [addPOI, setAddPOI] = useState(false);
@@ -38,16 +38,18 @@ function MapScreen(props) {
       })
         }
   } askPermissions();
+
    }, []);
 
-  //  useEffect(() => {
-  //    setListPOI(props.POI)
-  //  }, [props.POI]);
+   useEffect(() => {
+     setListPOI(props.POI)
+   }, [props.POI]);
 
    var selectPOI = (e) => {
     if(addPOI){
     setAddPOI(false);
     setVisible(true);
+    console.log(e.nativeElement)
     setTempPOI({ latitude: e.nativeEvent.coordinate.latitude, longitude:e.nativeEvent.coordinate.longitude } );
       }
      }
@@ -72,14 +74,14 @@ function MapScreen(props) {
         props.onSubmitListPOI(sendPOI); 
 
     }    
-  
+  console.log(listPOI);
     var markerPOI = listPOI.map((POI, i) => {
-        return <Marker key={i} pinColor="blue" 
+        return (<Marker key={i} pinColor="blue" 
         coordinate={{ latitude: POI.latitude, longitude: POI.longitude }}
           title={POI.titre}
           description={POI.description}
-        />
-      });
+        />);
+      })
 
   var isDisabled = false;
   if(addPOI){
@@ -127,7 +129,7 @@ function MapScreen(props) {
       >
         
         <Marker
-        coordinate={{latitude: currentLatitude.latitude, longitude: currentLongitude.longitude}}
+        coordinate={{latitude: currentLatitude, longitude: currentLongitude}}
         title="Hello"
         description="I am here"
         pinColor={'red'}
@@ -154,9 +156,9 @@ function MapScreen(props) {
     );
    }
 
-  // function mapStateToProps(state) {
-  //   return { POI: state.listPOI}
-  //   }
+  function mapStateToProps(state) {
+    return { POI: state.listPOI}
+    }
 
   function mapDispatchToProps(dispatch) {
     return {
@@ -167,6 +169,6 @@ function MapScreen(props) {
   }
   
   export default connect (
-    null, 
+    mapStateToProps, 
     mapDispatchToProps
 )(MapScreen);

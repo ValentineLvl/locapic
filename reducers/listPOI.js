@@ -1,4 +1,4 @@
-export default function(listPOI = '', action) {
+export default function(listPOI = [], action) {
     if(action.type == 'savePOI') {
         var tempListPOI = [...listPOI, action.POI]
         return tempListPOI;

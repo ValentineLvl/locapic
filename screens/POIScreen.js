@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import {connect} from 'react-redux';
@@ -6,9 +6,9 @@ import {connect} from 'react-redux';
 
 function POIScreen(props) {
 
-var listPOI = props.POI.map((POI) => {
+var listPOI = props.POI.map((POI, i) => {
     return (
-        <ListItem
+        <ListItem key={i}
         onPress = {() => props.onDeletePOI(POI)}
         >
         <ListItem.Content>
