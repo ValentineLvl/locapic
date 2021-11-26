@@ -6,7 +6,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
 
 import socketIOClient from "socket.io-client";
-var socket = socketIOClient("http://172.17.1.136:3000");
+var socket = socketIOClient("http://192.168.0.38:3000");
 
 function ChatScreen(props) {
 

@@ -8,19 +8,43 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 function HomeScreen(props) {
 
     const [pseudo, setPseudo] = useState('');
+    const [pseudoSubmited, setPseudoSubmited] = useState(false);
 
     useEffect(() => {
       AsyncStorage.getItem("pseudo", function(error, data) {
+        if (data) {
         setPseudo(data);
+        setPseudoSubmited(true);
         props.onSubmitPseudo(data);
-        console.log(data);
+        // console.log(data); 
+      }
       })
     },[]);
+
+var inputPseudo;
+if(!pseudoSubmited) {
+  inputPseudo = (
+  <Input 
+    containerStyle = {{marginBottom: 25, width: '70%'}}
+    inputStyle={{marginLeft: 10}}
+    placeholder='Valentine'
+    value={pseudo}
+       leftIcon={<Icon
+       name='user'
+       size={24}
+       color='#eb4d4b'
+   />}
+   onChangeText={(val) => setPseudo(val)}
+/>)
+} else {
+  inputPseudo = <Text style={styles.text}>Welcome back {pseudo} !</Text>
+}
 
     var handleSubmit = () => {
       props.onSubmitPseudo(pseudo);
       props.navigation.navigate('BottomNavigator',{screen : 'Map'});
       AsyncStorage.setItem("pseudo", pseudo);
+      setPseudoSubmited(true);
      // console.log(pseudo);
   }    
 
@@ -35,20 +59,11 @@ function HomeScreen(props) {
     return (
         <ImageBackground source={require('../assets/home.jpg')} style={styles.container}>
     
-    {props.pseudo ? 
-    (<Text style={styles.text}>Welcome back {pseudo} !</Text>)
-    :(<Input 
-      containerStyle = {{marginBottom: 25, width: '70%'}}
-      inputStyle={{marginLeft: 10}}
-      placeholder='Valentine'
-      value={pseudo}
-         leftIcon={<Icon
-         name='user'
-         size={24}
-         color='#eb4d4b'
-     />}
-     onChangeText={(val) => setPseudo(val)}
- />)}
+    {/* {props.pseudo = inputPseudo ? 
+    ()
+    :} */}
+
+    {inputPseudo}
 
      <Button icon={
          <Icon

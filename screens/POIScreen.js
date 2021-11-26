@@ -5,8 +5,8 @@ import {connect} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function POIScreen(props) {
-    
-var handledelete = (POI) => {
+
+const handleDelete = (POI) => {
     var listPOI = props.POI.filter((e) => e.latitude != POI.latitude && e.longitute != POI.longitude)
     props.onDeletePOI(listPOI)
     AsyncStorage.setItem("POI", JSON.stringify(listPOI));
@@ -19,7 +19,7 @@ var handledelete = (POI) => {
 var listPOI = props.POI.map((POI, i) => {
     return (
         <ListItem key={i}
-        onPress = {() => handledelete(POI)}
+        onPress = {() => handleDelete(POI)}
         >
         <ListItem.Content>
             <ListItem.Title>Point d'intérêt : {POI.titre} </ListItem.Title>

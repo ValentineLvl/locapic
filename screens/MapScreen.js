@@ -9,25 +9,29 @@ import * as Location from 'expo-location';
 import { connect } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import socketIOClient from "socket.io-client";
+var socket = socketIOClient("http://192.168.0.38:3000");
 
 function MapScreen(props) {
     
     //ma position
-    const [currentLatitude, setCurrentLatitude] = useState(0);
-    const [currentLongitude, setCurrentLongitude] = useState(0);
+  //  const [currentLatitude, setCurrentLatitude] = useState(0);
+   // const [currentLongitude, setCurrentLongitude] = useState(0);
     
     //Etat du bouton
     const [addPOI, setAddPOI] = useState(false);
     //Etat liste des POI
-    const [listPOI, setListPOI] = useState([]);
+    //const [listPOI, setListPOI] = useState([]);
 
     //Etat de l'Overlay
     const [visible, setVisible] = useState(false);
 
-    const [titrePOI, setTitrePOI] = useState();
-    const [descPOI, setDescPOI] = useState();
+    const [titrePOI, setTitrePOI] = useState("");
+    const [descPOI, setDescPOI] = useState("");
     const [tempPOI, setTempPOI] = useState();
   
+    const [listUser, setListUser] = useState([]);
+
   useEffect(() => {
     async function askPermissions() {
       
@@ -35,26 +39,40 @@ function MapScreen(props) {
       if (status === 'granted') {
       Location.watchPositionAsync({ distanceInterval: 2 }, 
         (location) => {
-        setCurrentLatitude(location.coords.latitude);
-        setCurrentLongitude(location.coords.longitude);
-      })
+        // setCurrentLatitude(location.coords.latitude);
+        // setCurrentLongitude(location.coords.longitude);
+      socket.emit('userLocation', { 
+        pseudo: props.pseudo, 
+        longitude: location.coords.longitude, 
+        latitude: location.coords.latitude 
+      });
+      });
         }
   } askPermissions();
-  AsyncStorage.getItem("listPOI", function(error, data) {
+
+  AsyncStorage.getItem("POI", function(error, data) {
     if (data){
-    var POIData = JSON.parse(data);
-    props.onSubmitListPOI(POIData);
-   setListPOI(POIData)
+    var POI = JSON.parse(data);
+    props.onSubmitListPOI(POI);
+   //setListPOI(POI)
   }
   })
   }, []);
 
+  useEffect(() => {
+    socket.on('userLocationToAll', (newUser) => {
+      var listUserCopy = [...listUser];
+      listUserCopy = listUserCopy.filter(user => user.pseudo != newUser.pseudo);
+      listUserCopy.push(newUser)
+      setListUser(listUserCopy);
+    });
+  }, [listUser]);
+//console.log("list user", listUser);
    var selectPOI = (e) => {
     if(addPOI){
     setAddPOI(false);
     setVisible(true);
-    console.log(e.nativeElement)
-    setTempPOI({ latitude: e.nativeEvent.coordinate.latitude, longitude:e.nativeEvent.coordinate.longitude } );
+    setTempPOI({ latitude: e.nativeEvent.coordinate.latitude, longitude: e.nativeEvent.coordinate.longitude } );
       }
      }
 
@@ -63,7 +81,7 @@ function MapScreen(props) {
         var sendPOI = {longitude: tempPOI.longitude, 
           latitude: tempPOI.latitude, 
           titre: titrePOI, 
-          description: descPOI}
+          description: descPOI};
 
           var listPOICopy = [...props.POI, sendPOI];
 
@@ -75,6 +93,7 @@ function MapScreen(props) {
         setTempPOI();  
         setDescPOI();
         setTitrePOI();
+
         props.onSubmitListPOI(listPOICopy);
        
     } 
@@ -86,6 +105,17 @@ function MapScreen(props) {
           description={POI.description}
         />);
       })
+
+      var markerUser = listUser.map((el, j) => {
+        console.log('user pseudo', el.pseudo);
+        return <Marker key={j} pinColor="red" title={el.pseudo} coordinate={{ latitude: el.latitude, longitude: el.longitude }}
+          
+        />
+        
+      });
+
+      
+      console.log("marker user",markerUser);
 
   var isDisabled = false;
   if(addPOI){
@@ -132,13 +162,14 @@ function MapScreen(props) {
        mapType ="terrain" 
       >
         
-        <Marker
+        {/* <Marker
         coordinate={{latitude: currentLatitude, longitude: currentLongitude}}
         title="Hello"
         description="I am here"
         pinColor={'red'}
-      />
+      /> */}
         {markerPOI}   
+        {markerUser}
      </MapView>
      
      <Button
@@ -161,7 +192,7 @@ function MapScreen(props) {
    }
 
   function mapStateToProps(state) {
-    return { POI: state.listPOI}
+    return { POI: state.listPOI, pseudo: state.pseudo }
     }
 
   function mapDispatchToProps(dispatch) {
