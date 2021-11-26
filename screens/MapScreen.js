@@ -53,6 +53,7 @@ function MapScreen(props) {
     if(addPOI){
     setAddPOI(false);
     setVisible(true);
+    console.log(e.nativeElement)
     setTempPOI({ latitude: e.nativeEvent.coordinate.latitude, longitude:e.nativeEvent.coordinate.longitude } );
       }
      }
@@ -75,7 +76,6 @@ function MapScreen(props) {
         setDescPOI();
         setTitrePOI();
         props.onSubmitListPOI(listPOICopy);
-        
        
     } 
  
