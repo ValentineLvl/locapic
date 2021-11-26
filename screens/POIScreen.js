@@ -1,15 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import {connect} from 'react-redux';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function POIScreen(props) {
+    
+var handledelete = (POI) => {
+    var listPOI = props.POI.filter((e) => e.latitude != POI.latitude && e.longitute != POI.longitude)
+    props.onDeletePOI(listPOI)
+    AsyncStorage.setItem("POI", JSON.stringify(listPOI));
+}
 
-var listPOI = props.POI.map((POI) => {
+//  useEffect(() => { 
+//     AsyncStorage.setItem("listPOI", JSON.stringify(props.POI));
+//   }, [props.POI]);
+
+var listPOI = props.POI.map((POI, i) => {
     return (
-        <ListItem
-        onPress = {() => props.onDeletePOI(POI)}
+        <ListItem key={i}
+        onPress = {() => handledelete(POI)}
         >
         <ListItem.Content>
             <ListItem.Title>Point d'intérêt : {POI.titre} </ListItem.Title>

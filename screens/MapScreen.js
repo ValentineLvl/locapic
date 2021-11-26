@@ -7,12 +7,14 @@ import MapView, {Marker} from 'react-native-maps';
 import * as Location from 'expo-location';
 
 import { connect } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 function MapScreen(props) {
     
     //ma position
-    const [currentLatitude, setCurrentLatitude] = useState({latitude:0});
-    const [currentLongitude, setCurrentLongitude] = useState({longitude:0});
+    const [currentLatitude, setCurrentLatitude] = useState(0);
+    const [currentLongitude, setCurrentLongitude] = useState(0);
     
     //Etat du bouton
     const [addPOI, setAddPOI] = useState(false);
@@ -38,11 +40,14 @@ function MapScreen(props) {
       })
         }
   } askPermissions();
-   }, []);
-
-  //  useEffect(() => {
-  //    setListPOI(props.POI)
-  //  }, [props.POI]);
+  AsyncStorage.getItem("listPOI", function(error, data) {
+    if (data){
+    var POIData = JSON.parse(data);
+    props.onSubmitListPOI(POIData);
+   setListPOI(POIData)
+  }
+  })
+  }, []);
 
    var selectPOI = (e) => {
     if(addPOI){
@@ -53,33 +58,34 @@ function MapScreen(props) {
      }
 
      var handleSubmit = () => {
-        
-        setListPOI([...listPOI, 
-          {longitude: tempPOI.longitude, 
-            latitude: tempPOI.latitude, 
-            titre: titrePOI, 
-            description: descPOI },
-          ]);
+          
         var sendPOI = {longitude: tempPOI.longitude, 
           latitude: tempPOI.latitude, 
           titre: titrePOI, 
           description: descPOI}
+
+          var listPOICopy = [...props.POI, sendPOI];
+
+          AsyncStorage.setItem("POI", JSON.stringify(listPOICopy));
+          
+          //setListPOI(listPOICopy);
+
         setVisible(false);
-        setTempPOI();
+        setTempPOI();  
         setDescPOI();
         setTitrePOI();
+        props.onSubmitListPOI(listPOICopy);
         
-        props.onSubmitListPOI(sendPOI); 
-
-    }    
-  
-    var markerPOI = listPOI.map((POI, i) => {
-        return <Marker key={i} pinColor="blue" 
+       
+    } 
+ 
+    var markerPOI = props.POI.map((POI, i) => {
+        return (<Marker key={i} pinColor="blue" 
         coordinate={{ latitude: POI.latitude, longitude: POI.longitude }}
           title={POI.titre}
           description={POI.description}
-        />
-      });
+        />);
+      })
 
   var isDisabled = false;
   if(addPOI){
@@ -127,7 +133,7 @@ function MapScreen(props) {
       >
         
         <Marker
-        coordinate={{latitude: currentLatitude.latitude, longitude: currentLongitude.longitude}}
+        coordinate={{latitude: currentLatitude, longitude: currentLongitude}}
         title="Hello"
         description="I am here"
         pinColor={'red'}
@@ -154,9 +160,9 @@ function MapScreen(props) {
     );
    }
 
-  // function mapStateToProps(state) {
-  //   return { POI: state.listPOI}
-  //   }
+  function mapStateToProps(state) {
+    return { POI: state.listPOI}
+    }
 
   function mapDispatchToProps(dispatch) {
     return {
@@ -167,6 +173,6 @@ function MapScreen(props) {
   }
   
   export default connect (
-    null, 
+    mapStateToProps, 
     mapDispatchToProps
 )(MapScreen);
